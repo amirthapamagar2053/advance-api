@@ -1,12 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from './prisma.service';
+import { ConfigService } from '@nestjs/config';
 
 jest.mock('@prisma/client', () => {
-  const mockPrismaClient = jest.fn().mockImplementation(() => ({
-    $connect: jest.fn().mockResolvedValue(undefined),
-    $disconnect: jest.fn().mockResolvedValue(undefined),
-  }));
-  return { PrismaClient: mockPrismaClient };
+  return {
+    PrismaClient: jest.fn().mockImplementation(() => ({
+      $connect: jest.fn(),
+      $disconnect: jest.fn(),
+    })),
+  };
 });
 
 describe('PrismaService', () => {
@@ -14,7 +16,13 @@ describe('PrismaService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService],
+      providers: [
+        PrismaService,
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue('postgresql://mock:5432/db') },
+        },
+      ],
     }).compile();
     service = module.get<PrismaService>(PrismaService);
   });
