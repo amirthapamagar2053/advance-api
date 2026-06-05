@@ -102,5 +102,12 @@ ALTER TABLE "ApprovalLog" ADD CONSTRAINT "ApprovalLog_settlementId_fkey" FOREIGN
 -- AddForeignKey
 ALTER TABLE "ApprovalLog" ADD CONSTRAINT "ApprovalLog_actorId_fkey" FOREIGN KEY ("actorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
+-- AddCheckConstraint
+ALTER TABLE "ApprovalLog" ADD CONSTRAINT "ApprovalLog_exactly_one_parent"
+  CHECK (
+    ("advanceRequestId" IS NOT NULL AND "settlementId" IS NULL) OR
+    ("advanceRequestId" IS NULL AND "settlementId" IS NOT NULL)
+  );
+
 CREATE SEQUENCE advance_request_seq START 1000;
 CREATE SEQUENCE settlement_seq START 3000;

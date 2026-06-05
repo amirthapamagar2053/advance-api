@@ -43,7 +43,7 @@ model AdvanceRequest {
   id            String        @id @default(uuid())
   requestNumber String        @unique
   employeeId    String
-  employee      User          @relation(fields: [employeeId], references: [id])
+  employee      User          @relation(fields: [employeeId], references: [id], onDelete: Restrict)
   amount        Decimal       @db.Decimal(12, 2)
   purpose       String
   status        AdvanceStatus @default(Draft)
@@ -56,9 +56,9 @@ model Settlement {
   id               String              @id @default(uuid())
   referenceNumber  String              @unique
   advanceRequestId String
-  advanceRequest   AdvanceRequest      @relation(fields: [advanceRequestId], references: [id])
+  advanceRequest   AdvanceRequest      @relation(fields: [advanceRequestId], references: [id], onDelete: Restrict)
   employeeId       String
-  employee         User                @relation(fields: [employeeId], references: [id])
+  employee         User                @relation(fields: [employeeId], references: [id], onDelete: Restrict)
   totalUtilized    Decimal             @db.Decimal(12, 2)
   status           SettlementStatus    @default(Pending_Review)
   createdAt        DateTime            @default(now())
