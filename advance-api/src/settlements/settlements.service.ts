@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../common/prisma.service';
 import { SupabaseStorageService } from './supabase-storage.service';
-import { SettlementStatus } from '@prisma/client';
+import { SettlementStatus, AdvanceStatus } from '@prisma/client';
 import { SettlementActionDto } from './dto/settlement-action.dto';
 import { ExpenseInput } from './dto/create-settlement.dto';
 
@@ -21,7 +21,7 @@ export class SettlementsService {
     const advance = await this.prisma.advanceRequest.findUnique({ where: { id: advanceRequestId } });
     if (!advance) throw new NotFoundException('Advance request not found');
     if (advance.employeeId !== employeeId) throw new ForbiddenException();
-    if (advance.status !== 'Approved') {
+    if (advance.status !== AdvanceStatus.Approved) {
       throw new BadRequestException('Advance must be Approved before submitting a settlement');
     }
 

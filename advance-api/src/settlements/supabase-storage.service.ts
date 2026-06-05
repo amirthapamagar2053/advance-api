@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class SupabaseStorageService {
@@ -16,7 +17,7 @@ export class SupabaseStorageService {
   }
 
   async uploadFile(buffer: Buffer, filename: string, mimetype: string): Promise<string> {
-    const path = `receipts/${Date.now()}-${filename}`;
+    const path = `receipts/${Date.now()}-${randomUUID()}-${filename}`;
     const { error } = await this.client.storage
       .from(this.bucket)
       .upload(path, buffer, { contentType: mimetype, upsert: false });
