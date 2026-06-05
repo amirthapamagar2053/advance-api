@@ -17,7 +17,7 @@ export class AdvancesService {
     const seq = await this.prisma.$queryRaw<[{ nextval: bigint }]>`
       SELECT nextval('advance_request_seq')
     `;
-    const requestNumber = `ADV-${seq[0].nextval}`;
+    const requestNumber = `ADV-${String(seq[0].nextval)}`;
     return this.prisma.advanceRequest.create({
       data: { requestNumber, employeeId, amount: dto.amount, purpose: dto.purpose },
     });
