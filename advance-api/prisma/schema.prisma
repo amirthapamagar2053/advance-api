@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  employee
+  supervisor
+  finance_manager
+  finance_director
+}
+
+enum AdvanceStatus {
+  Draft
+  Pending_Supervisor
+  Approved
+  Rejected
+  Returned
+}
+
+enum SettlementStatus {
+  Pending_Review
+  Approved
+  Returned_for_Revision
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  password        String
+  name            String
+  role            Role             @default(employee)
+  createdAt       DateTime         @default(now())
+  advanceRequests AdvanceRequest[]
+  settlements     Settlement[]
+  approvalLogs    ApprovalLog[]
+}
+
+model AdvanceRequest {
+  id            String        @id @default(uuid())
+  requestNumber String        @unique
+  employeeId    String
+  employee      User          @relation(fields: [employeeId], references: [id])
+  amount        Decimal       @db.Decimal(12, 2)
+  purpose       String
+  status        AdvanceStatus @default(Draft)
+  createdAt     DateTime      @default(now())
+  settlements   Settlement[]
+  approvalLogs  ApprovalLog[] @relation("AdvanceLogs")
+}
+
+model Settlement {
+  id               String              @id @default(uuid())
+  referenceNumber  String              @unique
+  advanceRequestId String
+  advanceRequest   AdvanceRequest      @relation(fields: [advanceRequestId], references: [id])
+  employeeId       String
+  employee         User                @relation(fields: [employeeId], references: [id])
+  totalUtilized    Decimal             @db.Decimal(12, 2)
+  status           SettlementStatus    @default(Pending_Review)
+  createdAt        DateTime            @default(now())
+  expenses         SettlementExpense[]
+  approvalLogs     ApprovalLog[]       @relation("SettlementLogs")
+}
+
+model SettlementExpense {
+  id           String     @id @default(uuid())
+  settlementId String
+  settlement   Settlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  expenseType  String
+  amount       Decimal    @db.Decimal(12, 2)
+  receiptUrl   String
+}
+
+model ApprovalLog {
+  id               String          @id @default(uuid())
+  advanceRequestId String?
+  advanceRequest   AdvanceRequest? @relation("AdvanceLogs", fields: [advanceRequestId], references: [id])
+  settlementId     String?
+  settlement       Settlement?     @relation("SettlementLogs", fields: [settlementId], references: [id])
+  action           String
+  actorId          String
+  actor            User            @relation(fields: [actorId], references: [id])
+  comments         String?
+  createdAt        DateTime        @default(now())
+}
