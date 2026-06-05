@@ -2,14 +2,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from './prisma.service';
 import { ConfigService } from '@nestjs/config';
 
-jest.mock('@prisma/client', () => {
-  return {
-    PrismaClient: jest.fn().mockImplementation(() => ({
-      $connect: jest.fn(),
-      $disconnect: jest.fn(),
-    })),
-  };
-});
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn().mockImplementation(() => ({
+    $connect: jest.fn().mockResolvedValue(undefined),
+    $disconnect: jest.fn().mockResolvedValue(undefined),
+  })),
+}));
+
+jest.mock('@prisma/adapter-pg', () => ({
+  PrismaPg: jest.fn().mockImplementation(() => ({})),
+}));
+
+jest.mock('pg', () => ({
+  Pool: jest.fn().mockImplementation(() => ({})),
+}));
 
 describe('PrismaService', () => {
   let service: PrismaService;

@@ -6,6 +6,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { SettlementsService } from './settlements.service';
+import { CreateSettlementDto } from './dto/create-settlement.dto';
 import { SettlementActionDto } from './dto/settlement-action.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -54,7 +55,7 @@ export class SettlementsController {
   @ApiResponse({ status: 201, description: 'Settlement created' })
   async create(
     @CurrentUser() user: any,
-    @Body('advanceRequestId') advanceRequestId: string,
+    @Body() dto: CreateSettlementDto,
     @Body('expenses') expensesJson: string,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
@@ -71,7 +72,7 @@ export class SettlementsController {
       throw new BadRequestException('Number of receipts must match number of expenses');
     }
     const expenses = parsed.map((e, i) => ({ ...e, file: files[i] }));
-    return this.settlements.create(user.id, advanceRequestId, expenses);
+    return this.settlements.create(user.id, dto.advanceRequestId, expenses);
   }
 
   @Get()
