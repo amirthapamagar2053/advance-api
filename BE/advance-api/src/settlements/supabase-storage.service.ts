@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
+import ws from 'ws';
 
 @Injectable()
 export class SupabaseStorageService {
@@ -12,6 +13,8 @@ export class SupabaseStorageService {
     this.client = createClient(
       config.get<string>('SUPABASE_URL')!,
       config.get<string>('SUPABASE_SERVICE_KEY')!,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { realtime: { transport: ws as any } },
     );
     this.bucket = config.get<string>('SUPABASE_BUCKET')!;
   }
